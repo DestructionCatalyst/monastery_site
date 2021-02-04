@@ -1,0 +1,122 @@
+﻿//Should move into database
+	let types = [
+		{
+			tag: "option",
+			attrib: {
+				value: "о здравии", 
+				type: "alive"
+			},
+			content: "О здравии"
+		},
+		{
+			tag: "option",
+			attrib: {
+				value: "о упокоении",
+				type: "dead"
+			},
+			content: "О упокоении"
+		}
+	]
+
+	let pomin = [
+		{
+			tag: "option",
+			attrib: {
+				value: 1,
+				cost: 28,
+				count: 10,
+				type: "both"
+			},
+			content: "Записка (до 10 имён)"
+		},
+		{
+			tag: "option",
+			attrib: {
+				value: 2,
+				cost: 23,
+				count: 10,
+				type: "both"
+			},
+			content: "Обедня (до 10 имён)"
+		},
+		{
+			tag: "option",
+			attrib: {
+				value: 3,
+				cost: 50,
+				count: 5,
+				type: "alive"
+			},
+			content: "Молебен (5 имён)"
+		},
+		{
+			tag: "option",
+			attrib: {
+				value: 4,
+				cost: 55,
+				count: 5,
+				type: "alive"
+			},
+			content: "Благодарственный молебен (5 имён)"
+		},
+		{
+			tag: "option",
+			attrib: {
+				value: 5,
+				cost: 55,
+				count: 1,
+				type: "dead"
+			},
+			content: "Панихида"
+		},
+		{
+			tag: "option",
+			attrib: {
+				value: 6,
+				cost: 460,
+				count: 1,
+				type: "both"
+			},
+			content: "Сорокоуст (С выниманием частиц в алтаре)"
+		},
+		{
+			tag: "option",
+			attrib: {
+				value: 7,
+				cost: 270,
+				count: 1,
+				type: "both"
+			},
+			content: "Сорокоуст (Без вынимания частицы)"
+		},
+		{
+			tag: "option",
+			attrib: {
+				value: 8,
+				cost: 260,
+				count: 1,
+				type: "both"
+			},
+			content: "Поминание (Один месяц)"
+		},
+		{
+			tag: "option",
+			attrib: {
+				value: 9,
+				cost: 520,
+				count: 1,
+				type: "both"
+			},
+			content: "Поминание (Полгода)"
+		},
+		{
+			tag: "option",
+			attrib: {
+				value: 10,
+				cost: 1050,
+				count: 1,
+				type: "both"
+			},
+			content: "Поминание (Год)"
+		}							
+	]

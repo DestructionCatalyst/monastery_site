@@ -1,0 +1,116 @@
+//UNUSED
+function html_from_object(obj)
+{
+	html = `<${obj.tag}`;
+
+	for (attribute in obj.attrib)
+	{
+		html += ` ${attribute}`;
+		if (obj.attrib[attribute] !== null)
+		{
+			html += `=\"${obj.attrib[attribute]}\"`;
+		}
+	}
+
+	html += `>${obj.content}</${obj.tag}>`;
+
+	return html;
+}
+//UNUSED
+function html_from_object_list(obj_list)
+{
+	//alert(obj_list);
+
+	var html_list = "";
+
+	for (var obj in obj_list){
+		html_list += html_from_object(obj_list[obj]) + "\n";
+	}
+
+	return html_list;
+}
+//UNUSED
+function is_valid_combination(type1, type2)
+{
+	if ((type1 === "both") || (type2 === "both"))
+	{
+		return true;
+	}
+	else
+	{
+		return type1 === type2; //returns true if types are same
+	}
+}
+//UNUSED
+function filtered_html_list(object_list, type_2)
+{
+	return html_from_object_list(
+		object_list.map(function(obj){
+			if(!is_valid_combination(obj.attrib.type, type_2))
+			{
+				obj.attrib.disabled = "";
+			}
+			else
+			{
+				delete obj.attrib.disabled;
+			}
+			return obj;
+		})
+	);
+}
+
+//UNUSED
+function form_type_list(object_list)
+{
+	var selected_type = $('#rite_type option:selected');
+	var selected_pomin = $('#rite_id option:selected');
+
+	//$('#rite_type').html(filtered_html_list(object_list, $('#rite_id option:selected').attr("type")));
+
+	$('#rite_type').html(html_from_object_list(object_list));
+
+	//Если получилась валидная комбинация - вернуть выделение где оно было, если нет - поставить его на первый пункт
+	if(is_valid_combination(selected_type.attr("type"), selected_pomin.attr("type")))
+	{
+		$("#rite_type option[value='" + selected_type.attr("value") + "']").attr("selected", "selected");
+	}
+	else
+	{
+		$("#rite_type option[value='" + 1 + "']").attr("selected", "selected");
+	}
+}
+
+//UNUSED
+function reset_type_if_invalid()
+{
+	var selected_type = $('#rite_type option:selected');
+	var selected_pomin = $('#rite_id option:selected');
+
+	//Если получилась валидная комбинация - вернуть выделение в поминовениях где оно было, если нет - поставить его на первый пункт
+	if(is_valid_combination(selected_type.attr("type"), selected_pomin.attr("type")))
+	{
+		//Если получилась валидная комбинация - вернуть выделение в поминовениях туда, где оно было
+		$("#rite_id option[value='" + selected_pomin.attr("value") + "']").attr("selected", "selected");
+	}
+	else
+	{
+		//Если комбинация невалидная - выделение убрать и сбросить на первый пункт
+		$("#rite_id option[value='" + selected_pomin.attr("value") + "']").removeAttr("selected");
+		$("#rite_id option[value='" + 1 + "']").attr("selected", "selected");
+		//Обновить заголовок
+		rite_title = $('#rite_id option:selected').text();
+		show_hdr();
+	}
+}
+
+//UNUSED
+function form_pomin_list(object_list)
+{
+	var was_selected = $('#rite_id option:selected');
+
+	$('#rite_id').html(filtered_html_list(object_list, $('#rite_type option:selected').attr("type")));
+
+	//$('#rite_id').html(html_from_object_list(object_list)); // Display with no filter
+
+	$("#rite_id option[value='"+was_selected.attr("value")+"']").attr("selected", "selected");
+}
