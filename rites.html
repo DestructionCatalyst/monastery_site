@@ -33,33 +33,49 @@ function alertObj(obj) {
     alert(str); 
 } 
 
-function form_type_list(object_list)
+function html_from_object(obj)
+{
+	html = `<${obj.tag}`;
+
+	for (attribute in obj.attrib)
+	{
+		html += ` ${attribute}`;
+		if (obj.attrib[attribute] != null)
+		{
+			html += `=\"${obj.attrib[attribute]}\"`;
+		}
+	}
+
+	html += `>${obj.content}</${obj.tag}>`;
+
+	return html;
+}
+
+function html_from_object_list(obj_list)
 {
 	var html_list = "";
 
-	was_selected = $('#rite_type option:selected');
-
-	for (var obj in object_list){
-		html_list += object_list[obj].html + "\n";
+	for (var obj in obj_list){
+		html_list += html_from_object(obj_list[obj]) + "\n";
 	}
 
-	$('#rite_type').html(html_list);
+	return html_list;
+}
+
+function form_type_list(object_list)
+{
+	was_selected = $('#rite_type option:selected');
+
+	$('#rite_type').html(html_from_object_list(object_list));
 
 	$("#rite_type option[value='"+was_selected.attr("value")+"']").attr("selected", "selected");
 }
 
 function form_pomin_list(object_list)
 {
-	var html_list = "";
-
 	was_selected = $('#rite_id option:selected');
 
-	for (var obj in object_list){
-		html_list += object_list[obj].html + "\n";
-	}
-
-	$('#rite_id').html(html_list);
-	//alert(was_selected.attr("value"));
+	$('#rite_id').html(html_from_object_list(object_list));
 
 	$("#rite_id option[value='"+was_selected.attr("value")+"']").attr("selected", "selected");
 }
@@ -87,56 +103,124 @@ $(document).ready(function(){
 	//Should move into database
 	let types = [
 		{
-			html: "<option value=\"о здравии\">О здравии</option>",
-			type: "alive"
+			tag: "option",
+			attrib: {
+				value: "о здравии", 
+				type: "alive"
+			},
+			content: "О здравии"
 		},
 		{
-			html: "<option value=\"о упокоении\">О упокоении</option>",
-			type: "dead"
+			tag: "option",
+			attrib: {
+				value: "о упокоении",
+				type: "dead"
+			},
+			content: "О упокоении"
 		}
 
 	]
 
 	let pomin = [
 		{
-			html: "<option value=\"1\" cost=\"28\" count=\"10\">Записка (до 10 имён)</option>",
-			type: "both"
+			tag: "option",
+			attrib: {
+				value: 1,
+				cost: 28,
+				count: 10,
+				type: "both"
+			},
+			content: "Записка (до 10 имён)"
 		},
 		{
-			html: "<option value=\"2\" cost=\"23\" count=\"10\">Обедня</option>",
-			type: "both"
+			tag: "option",
+			attrib: {
+				value: 2,
+				cost: 23,
+				count: 10,
+				type: "both"
+			},
+			content: "Обедня (до 10 имён)"
 		},
 		{
-			html: "<option value=\"3\" cost=\"50\" count=\"5\">Молебен (5 имён)</option>",
-			type: "alive"
+			tag: "option",
+			attrib: {
+				value: 3,
+				cost: 50,
+				count: 5,
+				type: "alive"
+			},
+			content: "Молебен (5 имён)"
 		},
 		{
-			html: "<option value=\"4\" cost=\"55\" count=\"5\">Благодарственный молебен (5 имён)</option>",
-			type: "alive"
+			tag: "option",
+			attrib: {
+				value: 4,
+				cost: 55,
+				count: 5,
+				type: "alive"
+			},
+			content: "Благодарственный молебен (5 имён)"
 		},
 		{
-			html: "<option value=\"5\" cost=\"55\" count=\"1\">Панихида</option>",
-			type: "dead"
+			tag: "option",
+			attrib: {
+				value: 5,
+				cost: 55,
+				count: 1,
+				type: "dead"
+			},
+			content: "Панихида"
 		},
 		{
-			html: "<option value=\"6\" cost=\"460\" count=\"1\">Сорокоуст (С выниманием частиц в алтаре)</option>",
-			type: "both"
+			tag: "option",
+			attrib: {
+				value: 6,
+				cost: 460,
+				count: 1,
+				type: "both"
+			},
+			content: "Сорокоуст (С выниманием частиц в алтаре)"
 		},
 		{
-			html: "<option value=\"7\" cost=\"270\" count=\"1\">Сорокоуст (Без вынимания частицы)</option>",
-			type: "both"
+			tag: "option",
+			attrib: {
+				value: 7,
+				cost: 270,
+				count: 1,
+				type: "both"
+			},
+			content: "Сорокоуст (Без вынимания частицы)"
 		},
 		{
-			html: "<option value=\"8\" cost=\"260\" count=\"1\">Поминание (Один месяц)</option>",
-			type: "both"
+			tag: "option",
+			attrib: {
+				value: 8,
+				cost: 260,
+				count: 1,
+				type: "both"
+			},
+			content: "Поминание (Один месяц)"
 		},
 		{
-			html: "<option value=\"9\" cost=\"520\" count=\"1\">Поминание (Полгода)</option>",
-			type: "both"
+			tag: "option",
+			attrib: {
+				value: 9,
+				cost: 520,
+				count: 1,
+				type: "both"
+			},
+			content: "Поминание (Полгода)"
 		},
 		{
-			html: "<option value=\"10\" cost=\"1050\" count=\"1\">Поминание (Год)</option>",
-			type: "both"
+			tag: "option",
+			attrib: {
+				value: 10,
+				cost: 1050,
+				count: 1,
+				type: "both"
+			},
+			content: "Поминание (Год)"
 		}							
 		]
 
