@@ -6,6 +6,9 @@
 
 var rite_type;
 var rite_title;
+var total_names;
+var rite_cost;
+var rite_count;
 
 function disable_form()
 {
@@ -19,93 +22,58 @@ function total_cost(names, cost, count)
 	if (total) $('#rite_out_total').html('Сумма: '+total+'&nbsp;руб.');
 }
 
+//Обновить заголовок в записке
+//Перед вызовом надо обновить rite_type и rite_title! 
 function show_hdr()
 {
 	$('#rite_out_hdr').html('<span style="text-transform: uppercase; letter-spacing: 1px;">'+rite_type+'</span><br />'+rite_title);
 }
 
-//DEBUG
-function alertObj(obj) { 
-    var str = ""; 
-    for(k in obj) { 
-        str += k+": "+ obj[k]+"\r\n"; 
-    } 
-    alert(str); 
-} 
-
-function html_from_object(obj)
+//Вызывается при смене поминовения, вынес в отдельную функцию, потому что делать надо в 2 местах - 
+//если поминовение поменял сам пользователь или если оно поменялось в результате того, что поменялся тип (здравие/упокой) и текущее стало неактивным
+function on_pomin_changed()
 {
-	html = `<${obj.tag}`;
+	obj_selected = $('#rite_id option:selected');
 
-	for (attribute in obj.attrib)
+	// Обновить заголовок
+	rite_title = obj_selected.text();
+	show_hdr();
+
+	// стоимость
+	rite_cost = obj_selected.attr('cost');
+	rite_count = obj_selected.attr('count')
+
+	$('#rite_cost').val(rite_cost);
+	total_cost(total_names, rite_cost, rite_count);
+}
+
+function reselect_enabled()
+{
+	var selected_pomin = $('#rite_id option:selected');
+
+	//Еcли выбранный элемент отключен, то выбрать первый включенный
+	if(selected_pomin.attr("disabled"))
 	{
-		html += ` ${attribute}`;
-		if (obj.attrib[attribute] !== null)
-		{
-			html += `=\"${obj.attrib[attribute]}\"`;
-		}
-	}
+		selected_pomin.removeAttr("selected");
 
-	html += `>${obj.content}</${obj.tag}>`;
+		$('#rite_id option:enabled:first').attr("selected", "");
 
-	return html;
-}
-
-function html_from_object_list(obj_list)
-{
-	//alert(obj_list);
-
-	var html_list = "";
-
-	for (var obj in obj_list){
-		html_list += html_from_object(obj_list[obj]) + "\n";
-	}
-
-	return html_list;
-}
-
-function is_valid_combination(type1, type2)
-{
-	if ((type1 === "both") || (type2 === "both"))
-	{
-		return true;
-	}
-	else
-	{
-		return type1 === type2; //returns true if types are same
+		//Обновляем список с именами и ценой, как если бы пользователь сам поменял вид поминовения
+		on_pomin_changed();
 	}
 }
 
-function form_type_list(object_list)
+function disable_invalid_pomin()
 {
-	was_selected = $('#rite_type option:selected');
+	var type = $('#rite_type option:selected').attr("type");
 
-	$('#rite_type').html(html_from_object_list(object_list));
-
-	$("#rite_type option[value='"+was_selected.attr("value")+"']").attr("selected", "selected");
-}
-
-function form_pomin_list(object_list)
-{
-	was_selected = $('#rite_id option:selected');
-
-	$('#rite_id').html(html_from_object_list(
-		object_list.map(function(obj){
-			if(!is_valid_combination($('#rite_type option:selected').attr("type"), obj.attrib.type))
-			{
-				obj.attrib.disabled = null;
-			}
-			else
-			{
-				delete obj.attrib.disabled;
-			}
-			return obj;
-		})
-	));
-
-	//$('#rite_id').html(html_from_object_list(object_list)); // Display with no filter
-
-	$("#rite_id option[value='"+was_selected.attr("value")+"']").attr("selected", "selected");
+	//Если тип не совпадает и не both, то выключить
+	$(`#rite_id option:not([type=${type}]):not([type=both])`)
+	.each(function(){this.disabled = true;});
+	//А если тип совпадает - включить (где тип both включать не надо, потому что их никто и не отключал)
+	$(`#rite_id option[type=${type}]`)
+	.each(function(){this.disabled = false;});
+	
 }
 
 $('table.orders').ready(function(){
@@ -128,162 +96,28 @@ function isValidEmail(email)
 $(document).ready(function(){
 	disable_form();
 
-	//Should move into database
-	let types = [
-		{
-			tag: "option",
-			attrib: {
-				value: "о здравии", 
-				type: "alive"
-			},
-			content: "О здравии"
-		},
-		{
-			tag: "option",
-			attrib: {
-				value: "о упокоении",
-				type: "dead"
-			},
-			content: "О упокоении"
-		}
-	]
-
-	let pomin = [
-		{
-			tag: "option",
-			attrib: {
-				value: 1,
-				cost: 28,
-				count: 10,
-				type: "both"
-			},
-			content: "Записка (до 10 имён)"
-		},
-		{
-			tag: "option",
-			attrib: {
-				value: 2,
-				cost: 23,
-				count: 10,
-				type: "both"
-			},
-			content: "Обедня (до 10 имён)"
-		},
-		{
-			tag: "option",
-			attrib: {
-				value: 3,
-				cost: 50,
-				count: 5,
-				type: "alive"
-			},
-			content: "Молебен (5 имён)"
-		},
-		{
-			tag: "option",
-			attrib: {
-				value: 4,
-				cost: 55,
-				count: 5,
-				type: "alive"
-			},
-			content: "Благодарственный молебен (5 имён)"
-		},
-		{
-			tag: "option",
-			attrib: {
-				value: 5,
-				cost: 55,
-				count: 1,
-				type: "dead"
-			},
-			content: "Панихида"
-		},
-		{
-			tag: "option",
-			attrib: {
-				value: 6,
-				cost: 460,
-				count: 1,
-				type: "both"
-			},
-			content: "Сорокоуст (С выниманием частиц в алтаре)"
-		},
-		{
-			tag: "option",
-			attrib: {
-				value: 7,
-				cost: 270,
-				count: 1,
-				type: "both"
-			},
-			content: "Сорокоуст (Без вынимания частицы)"
-		},
-		{
-			tag: "option",
-			attrib: {
-				value: 8,
-				cost: 260,
-				count: 1,
-				type: "both"
-			},
-			content: "Поминание (Один месяц)"
-		},
-		{
-			tag: "option",
-			attrib: {
-				value: 9,
-				cost: 520,
-				count: 1,
-				type: "both"
-			},
-			content: "Поминание (Полгода)"
-		},
-		{
-			tag: "option",
-			attrib: {
-				value: 10,
-				cost: 1050,
-				count: 1,
-				type: "both"
-			},
-			content: "Поминание (Год)"
-		}							
-	]
-
-	var total_names = 0;
+	total_names = 0;
 	var obj_selected = $('#rite_id option:selected');
-	var rite_cost = obj_selected.attr('cost');
-	var rite_count = obj_selected.attr('count')
+	rite_cost = obj_selected.attr('cost');
+	rite_count = obj_selected.attr('count')
 	rite_type = $('#rite_type').val();
 	rite_title = obj_selected.text();
 
-	form_type_list(types);
-	form_pomin_list(pomin);
+	disable_invalid_pomin();
 	show_hdr();
 
 	// обработчик типа требы
 	$('#rite_type').change(function(){
 		rite_type = $(this).val();
 
+		disable_invalid_pomin();
+		reselect_enabled();
 		show_hdr();
-		form_pomin_list(pomin);
+		
 	});
 
 	// обработчик списка треб
-	$('#rite_id').change(function(){
-		obj_selected = $('#rite_id option:selected');
-
-		rite_title = obj_selected.text();
-		show_hdr();
-
-		// стоимость
-		rite_cost = obj_selected.attr('cost');
-		rite_count = obj_selected.attr('count')
-
-		$('#rite_cost').val(rite_cost);
-		total_cost(total_names, rite_cost, rite_count);
-	});
+	$('#rite_id').change(on_pomin_changed);
 
 	// обработчик поля имен
 	$('#rite_names').keyup(function() {
@@ -439,6 +273,7 @@ $(document).ready(function(){
 			    background: white;
 			    border: 1px solid #A89F93;
 			    border-radius: 4px;
+			    resize: vertical;
 			    -moz-box-sizing: border-box;
 			    -webkit-box-sizing: border-box;
 			    box-sizing: border-box;
@@ -494,21 +329,21 @@ right: 20px;
 	<div id="rite_new_order">
 	<form method="post" id="rite_form" class="rounded" action="">
     <select id="rite_type" name="values[rite_type]">
-    	<option value="о здравии">О здравии</option>
-    	<option value="о упокоении">О упокоении</option>
+    	<option value="о здравии" type="alive">О здравии</option>
+    	<option value="о упокоении" type="dead">О упокоении</option>
     </select>
   <label for="rite_id">Поминовение:</label>
   <select id="rite_id" name="values[rite_id]">
-		     <option value="1" cost="28" count="10">Записка (до 10 имён)</option>
-								<option value="2" cost="23" count="10">Обедня</option>
-								<option value="3" cost="50" count="5">Молебен (5 имён)</option>
-								<option value="4" cost="55" count="5">Благодарственный молебен (5 имён)</option>
-								<option value="5" cost="55" count="1">Панихида</option>
-								<option value="6" cost="460" count="1">Сорокоуст (С выниманием частиц в алтаре)</option>
-								<option value="7" cost="270" count="1">Сорокоуст (Без вынимания частицы)</option>
-								<option value="8" cost="260" count="1">Поминание (Один месяц)</option>
-								<option value="9" cost="520" count="1">Поминание (Полгода)</option>
-								<option value="10" cost="1050" count="1">Поминание (Год)</option>       
+		     <option value="1" cost="28" count="10" type="both">Записка (до 10 имён)</option>
+								<option value="2" cost="23" count="1" type="both">Обедня</option>
+								<option value="3" cost="50" count="5" type="alive">Молебен (5 имён)</option>
+								<option value="4" cost="55" count="5" type="alive">Благодарственный молебен (5 имён)</option>
+								<option value="5" cost="55" count="1" type="dead">Панихида</option>
+								<option value="6" cost="460" count="1" type="both">Сорокоуст (С выниманием частиц в алтаре)</option>
+								<option value="7" cost="270" count="1" type="both">Сорокоуст (Без вынимания частицы)</option>
+								<option value="8" cost="260" count="1" type="both">Поминание (Один месяц)</option>
+								<option value="9" cost="520" count="1" type="both">Поминание (Полгода)</option>
+								<option value="10" cost="1050" count="1" type="both">Поминание (Год)</option>       
 		</select>
 <label for="rite_names">Имена:</label>
     <textarea name="values[names]" id="rite_names" rows="10"></textarea>
