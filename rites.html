@@ -24,6 +24,46 @@ function show_hdr()
 	$('#rite_out_hdr').html('<span style="text-transform: uppercase; letter-spacing: 1px;">'+rite_type+'</span><br />'+rite_title);
 }
 
+//DEBUG
+function alertObj(obj) { 
+    var str = ""; 
+    for(k in obj) { 
+        str += k+": "+ obj[k]+"\r\n"; 
+    } 
+    alert(str); 
+} 
+
+function form_type_list(object_list)
+{
+	var html_list = "";
+
+	was_selected = $('#rite_type option:selected');
+
+	for (var obj in object_list){
+		html_list += object_list[obj].html + "\n";
+	}
+
+	$('#rite_type').html(html_list);
+
+	$("#rite_type option[value='"+was_selected.attr("value")+"']").attr("selected", "selected");
+}
+
+function form_pomin_list(object_list)
+{
+	var html_list = "";
+
+	was_selected = $('#rite_id option:selected');
+
+	for (var obj in object_list){
+		html_list += object_list[obj].html + "\n";
+	}
+
+	$('#rite_id').html(html_list);
+	//alert(was_selected.attr("value"));
+
+	$("#rite_id option[value='"+was_selected.attr("value")+"']").attr("selected", "selected");
+}
+
 $('table.orders').ready(function(){
 	// ссылка "удалить"
 	$('a.delete').click(function(){
@@ -44,19 +84,79 @@ function isValidEmail(email)
 $(document).ready(function(){
 	disable_form();
 
+	//Should move into database
+	let types = [
+		{
+			html: "<option value=\"о здравии\">О здравии</option>",
+			type: "alive"
+		},
+		{
+			html: "<option value=\"о упокоении\">О упокоении</option>",
+			type: "dead"
+		}
+
+	]
+
+	let pomin = [
+		{
+			html: "<option value=\"1\" cost=\"28\" count=\"10\">Записка (до 10 имён)</option>",
+			type: "both"
+		},
+		{
+			html: "<option value=\"2\" cost=\"23\" count=\"10\">Обедня</option>",
+			type: "both"
+		},
+		{
+			html: "<option value=\"3\" cost=\"50\" count=\"5\">Молебен (5 имён)</option>",
+			type: "alive"
+		},
+		{
+			html: "<option value=\"4\" cost=\"55\" count=\"5\">Благодарственный молебен (5 имён)</option>",
+			type: "alive"
+		},
+		{
+			html: "<option value=\"5\" cost=\"55\" count=\"1\">Панихида</option>",
+			type: "dead"
+		},
+		{
+			html: "<option value=\"6\" cost=\"460\" count=\"1\">Сорокоуст (С выниманием частиц в алтаре)</option>",
+			type: "both"
+		},
+		{
+			html: "<option value=\"7\" cost=\"270\" count=\"1\">Сорокоуст (Без вынимания частицы)</option>",
+			type: "both"
+		},
+		{
+			html: "<option value=\"8\" cost=\"260\" count=\"1\">Поминание (Один месяц)</option>",
+			type: "both"
+		},
+		{
+			html: "<option value=\"9\" cost=\"520\" count=\"1\">Поминание (Полгода)</option>",
+			type: "both"
+		},
+		{
+			html: "<option value=\"10\" cost=\"1050\" count=\"1\">Поминание (Год)</option>",
+			type: "both"
+		}							
+		]
+
 	var total_names = 0;
 	var obj_selected = $('#rite_id option:selected');
 	var rite_cost = obj_selected.attr('cost');
 	var rite_count = obj_selected.attr('count')
 	rite_type = $('#rite_type').val();
 	rite_title = obj_selected.text();
+
+	form_type_list(types);
+	form_pomin_list(pomin);
 	show_hdr();
 
 	// обработчик типа требы
 	$('#rite_type').change(function(){
 		rite_type = $(this).val();
+
 		show_hdr();
-		//Скрыть невалидные
+		form_pomin_list(pomin);
 	});
 
 	// обработчик списка треб
@@ -288,7 +388,7 @@ right: 20px;
     </select>
   <label for="rite_id">Поминовение:</label>
   <select id="rite_id" name="values[rite_id]">
-		            <option value="1" cost="28" count="10">Записка (до 10 имён)</option>
+		     <option value="1" cost="28" count="10">Записка (до 10 имён)</option>
 								<option value="2" cost="23" count="10">Обедня</option>
 								<option value="3" cost="50" count="5">Молебен (5 имён)</option>
 								<option value="4" cost="55" count="5">Благодарственный молебен (5 имён)</option>
@@ -297,7 +397,7 @@ right: 20px;
 								<option value="7" cost="270" count="1">Сорокоуст (Без вынимания частицы)</option>
 								<option value="8" cost="260" count="1">Поминание (Один месяц)</option>
 								<option value="9" cost="520" count="1">Поминание (Полгода)</option>
-								<option value="10" cost="1050" count="1">Поминание (Год)</option>
+								<option value="10" cost="1050" count="1">Поминание (Год)</option>       
 		</select>
 <label for="rite_names">Имена:</label>
     <textarea name="values[names]" id="rite_names" rows="10"></textarea>
