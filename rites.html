@@ -1,4 +1,4 @@
-﻿<section class="col2">
+<section class="col2">
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 
@@ -40,7 +40,7 @@ function html_from_object(obj)
 	for (attribute in obj.attrib)
 	{
 		html += ` ${attribute}`;
-		if (obj.attrib[attribute] != null)
+		if (obj.attrib[attribute] !== null)
 		{
 			html += `=\"${obj.attrib[attribute]}\"`;
 		}
@@ -53,6 +53,8 @@ function html_from_object(obj)
 
 function html_from_object_list(obj_list)
 {
+	//alert(obj_list);
+
 	var html_list = "";
 
 	for (var obj in obj_list){
@@ -60,6 +62,18 @@ function html_from_object_list(obj_list)
 	}
 
 	return html_list;
+}
+
+function is_valid_combination(type1, type2)
+{
+	if ((type1 === "both") || (type2 === "both"))
+	{
+		return true;
+	}
+	else
+	{
+		return type1 === type2; //returns true if types are same
+	}
 }
 
 function form_type_list(object_list)
@@ -75,7 +89,21 @@ function form_pomin_list(object_list)
 {
 	was_selected = $('#rite_id option:selected');
 
-	$('#rite_id').html(html_from_object_list(object_list));
+	$('#rite_id').html(html_from_object_list(
+		object_list.map(function(obj){
+			if(!is_valid_combination($('#rite_type option:selected').attr("type"), obj.attrib.type))
+			{
+				obj.attrib.disabled = null;
+			}
+			else
+			{
+				delete obj.attrib.disabled;
+			}
+			return obj;
+		})
+	));
+
+	//$('#rite_id').html(html_from_object_list(object_list)); // Display with no filter
 
 	$("#rite_id option[value='"+was_selected.attr("value")+"']").attr("selected", "selected");
 }
@@ -118,7 +146,6 @@ $(document).ready(function(){
 			},
 			content: "О упокоении"
 		}
-
 	]
 
 	let pomin = [
@@ -222,7 +249,7 @@ $(document).ready(function(){
 			},
 			content: "Поминание (Год)"
 		}							
-		]
+	]
 
 	var total_names = 0;
 	var obj_selected = $('#rite_id option:selected');
