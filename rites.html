@@ -1,0 +1,439 @@
+<section class="col2">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+<script type="text/javascript">
+
+var rite_type;
+var rite_title;
+
+function disable_form()
+{
+	//$('#rite_submit').attr('disabled','disabled');
+	$('#rite_out_total').empty();
+}
+
+function total_cost(names, cost, count)
+{
+	var total = Math.ceil(names / count) * cost;
+	if (total) $('#rite_out_total').html('Сумма: '+total+'&nbsp;руб.');
+}
+
+function show_hdr()
+{
+	$('#rite_out_hdr').html('<span style="text-transform: uppercase; letter-spacing: 1px;">'+rite_type+'</span><br />'+rite_title);
+}
+
+$('table.orders').ready(function(){
+	// ссылка "удалить"
+	$('a.delete').click(function(){
+		if (confirm('Внимание! Данный заказ будет удален. Вы уверены?')) return true;
+
+		return false;
+	});
+});
+
+</script>
+
+<script type="text/javascript">
+
+function isValidEmail(email)
+{
+	return email.indexOf('@') + 1;
+}
+$(document).ready(function(){
+	disable_form();
+
+	var total_names = 0;
+	var obj_selected = $('#rite_id option:selected');
+	var rite_cost = obj_selected.attr('cost');
+	var rite_count = obj_selected.attr('count')
+	rite_type = $('#rite_type').val();
+	rite_title = obj_selected.text();
+	show_hdr();
+
+	// обработчик типа требы
+	$('#rite_type').change(function(){
+		rite_type = $(this).val();
+		show_hdr();
+		//Скрыть невалидные
+	});
+
+	// обработчик списка треб
+	$('#rite_id').change(function(){
+		obj_selected = $('#rite_id option:selected');
+
+		rite_title = obj_selected.text();
+		show_hdr();
+
+		// стоимость
+		rite_cost = obj_selected.attr('cost');
+		rite_count = obj_selected.attr('count')
+
+		$('#rite_cost').val(rite_cost);
+		total_cost(total_names, rite_cost, rite_count);
+	});
+
+	// обработчик поля имен
+	$('#rite_names').keyup(function() {
+		// удаляем теги и разбиваем имена по переводу строки или запятой
+		var arr = this.value.replace(/<.*?>/gi, '').split(/\r?\n|\s*,\s*/);
+		var names = '';
+
+		total_names = 0;
+		for (var i = 0; i < arr.length; i++) {
+			if (arr[i]){
+				names += '<li>'+arr[i]+'</li>';
+				total_names++;
+			}
+		}
+
+		$('#rite_out_names').html(names);
+		total_cost(total_names, rite_cost, rite_count);
+
+		if (total_names > 0)
+			$('#rite_submit').removeAttr('disabled');
+		else
+			disable_form();
+
+	});
+
+	// обработчик формы добавления поминовений
+	$('#rite_form').submit(function(){
+
+        if (!$('#rite_names').val()) {
+            alert('Укажите хотя-бы одно имя');
+            $('#rite_names').focus();
+
+    		return false;
+        }
+
+		if ($('#order_name').val() != undefined) {
+
+    		if (!$('#order_name').val()) {
+    			alert('Пожалуйста, введите свое имя!');
+    			$('#order_name').focus();
+
+    			return false;
+    		}
+
+    		if (!isValidEmail($('#order_email').val())) {
+    			alert('Введите электронный адрес в правильном формате');
+    			$('#order_email').focus();
+
+    			return false;
+    		}
+        }
+	});
+
+	// обработчик формы заказов
+	$('#cart_form').submit(function(){
+	   $('#submit_cart').val('Подождите...').attr('disabled','disabled');
+	   return true;
+    });
+
+	// включить форму нового заказа
+	$('#add_new').click(function(){
+		$('#rite_new_order').show()
+		$('#submit_buttons').hide();
+		return false;
+	});
+
+	// включить форму изменения личных данных
+	$('#show_order_form').click(function(){
+		$(this).hide();
+		$('#order_form').show();
+
+		return false;
+	});
+});
+</script>
+    <h1>Заказ поминовений</h1>
+
+<style>
+			#rite_new_order {
+					padding: 0 0px 0 292px;
+					margin-top: 1.5em;
+			    overflow: hidden;
+					}
+			.js #rite_new_order.hidden {display: none;}
+
+			.rite_order {
+			    padding: 0 250px 0 0;
+					}
+			#rite_form,
+			.rites_form,
+			#order_form {
+					padding: 1.5em;
+					background: rgba(124,101,73,.1);
+					border-radius: 6px;
+					}
+
+			#rite_form {
+			    float: left;
+			    margin-left: -292px;
+			    width: 300px;
+			    -moz-box-sizing: border-box;
+			    -webkit-box-sizing: border-box;
+			    box-sizing: border-box;
+			}
+
+			#order_form {
+			    padding: 1em 1.5em;
+			}
+
+			#order_form label {
+			    font-size: .75em;
+			    padding-right: .5em;
+			}
+
+			#order_form input[type="text"] {
+			    border: 1px solid #A89F93;
+			    padding: 5px;
+			    border-radius: 4px;
+			}
+
+			#rite_form label,
+			.rites_form {
+			    font-size: .75em;
+			    padding: 0 6px;
+			    display: block;
+			    margin: .5em 0 .05em;
+			}
+
+			.js #order_form {display: none;}
+
+			#rite_type,
+			#rite_id {
+			    width: 100%;
+			    height: 40px;
+			    padding: 6px;
+			    background: white url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMSIgaGVpZ2h0PSI4IiB2aWV3Qm94PSIwIDAgMjEgOCI+CiAgPGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgIDxyZWN0IHdpZHRoPSIyMSIgaGVpZ2h0PSI4IiBmaWxsPSIjRkZGIiBmaWxsLW9wYWNpdHk9Ii4wMTQiLz4KICAgIDxwb2x5Z29uIGZpbGw9IiM1QTVBNUEiIHBvaW50cz0iNiA4IDAgMCAxMiAwIi8+CiAgPC9nPgo8L3N2Zz4=') right 55% no-repeat;
+			    -webkit-appearance: none;
+			    -moz-appearance: none;
+			    appearance: none;
+			    border: 1px solid #A89F93;
+			    border-radius: 4px;
+			    -moz-box-sizing: border-box;
+			    -webkit-box-sizing: border-box;
+			    box-sizing: border-box;
+			}
+
+			#rite_names,
+			#rite_note,
+			#order_name,
+			#order_email {
+			    width: 100%;
+			    padding: 8px;
+			    background: white;
+			    border: 1px solid #A89F93;
+			    border-radius: 4px;
+			    -moz-box-sizing: border-box;
+			    -webkit-box-sizing: border-box;
+			    box-sizing: border-box;
+			}
+
+			#order_name,
+			#order_email {
+			    height: 32px;
+			    line-height: 32px;
+			}
+			.js .rite_out {
+    			display: block;
+			}
+			.rite_out {
+    			display: none;
+					margin: 0 50px;
+    			float: left;
+    			/* color: #333; */
+    			width: 325px;
+    			min-height: 720px;
+					max-width: 325px;
+    			height: auto;
+					position: absolute;
+    			background-color: white;
+    			padding: 1.5em;
+    			-moz-border-radius: 4px;
+    			-webkit-border-radius: 4px;
+    			border-radius: 4px;
+    			-moz-box-shadow: 0 4px 8px rgba(0,0,0,.2);
+    			-webkit-box-shadow: 0 4px 8px rgba(0,0,0,.2);
+    			box-shadow: 0 4px 8px rgba(0,0,0,.2);
+					}
+			#rite_out_hdr {
+    			font-style: normal;
+    			text-align: center;
+    			color: #5D4323;
+					}
+			#rite_out_names {
+    			margin: 1em 0 0;
+    			font-size: .875em;
+    			counter-reset: list 0;
+					}
+#posit {
+width: 400px; 
+float: right;
+font-size: 11pt;;
+position: absolute;
+top: 700px;
+right: 20px;
+}		
+</style>
+
+	<div id="rite_new_order">
+	<form method="post" id="rite_form" class="rounded" action="">
+    <select id="rite_type" name="values[rite_type]">
+    	<option value="о здравии">О здравии</option>
+    	<option value="о упокоении">О упокоении</option>
+    </select>
+  <label for="rite_id">Поминовение:</label>
+  <select id="rite_id" name="values[rite_id]">
+		            <option value="1" cost="28" count="10">Записка (до 10 имён)</option>
+								<option value="2" cost="23" count="10">Обедня</option>
+								<option value="3" cost="50" count="5">Молебен (5 имён)</option>
+								<option value="4" cost="55" count="5">Благодарственный молебен (5 имён)</option>
+								<option value="5" cost="55" count="1">Панихида</option>
+								<option value="6" cost="460" count="1">Сорокоуст (С выниманием частиц в алтаре)</option>
+								<option value="7" cost="270" count="1">Сорокоуст (Без вынимания частицы)</option>
+								<option value="8" cost="260" count="1">Поминание (Один месяц)</option>
+								<option value="9" cost="520" count="1">Поминание (Полгода)</option>
+								<option value="10" cost="1050" count="1">Поминание (Год)</option>
+		</select>
+<label for="rite_names">Имена:</label>
+    <textarea name="values[names]" id="rite_names" rows="10"></textarea>
+    <label for="rite_note">Примечание <em>(необязательно)</em>:</label>
+    <textarea name="values[note]" id="rite_note" rows="4"></textarea>
+        <label for="order_name">Ваше имя:</label>
+    <input type="text" name="order[name]" id="order_name" value="" />
+    <label for="order_email">Ваша электронная почта:</label>
+    <input type="text" name="order[email]" id="order_email" value="" />
+        <div class="submit"><input type="submit" id="rite_submit" value="Добавить к заказу" style="margin-top: 15px;" /></div>
+    </form>
+
+<div class="rite_out">
+		<div class="hdr" id="rite_out_hdr"></div>
+		<ol id="rite_out_names"></ol>
+		<p id="rite_out_total"></p>
+	</div>
+	</div>
+</section>
+</div>
+
+<article class="annotation"><div class="content" visibility="hidden">
+  		<p>Братья и сестры, просим внимательно относиться к&nbsp;заказу поминовений! Принимаются имена <strong>только крещеных христиан православного вероисповедания.</strong></p>
+			<p>Если у вас возникли какие-либо сомнения относительно людей, имена которых вы&nbsp;бы хотели подать для поминовения в&nbsp;монастыре, в&nbsp;окне примечаний обязательно кратко опишите ситуацию.</p>
+			<p>Имена пишутся в&nbsp;родительном падеже <em>(пример: Василия, Елены)</em> строго по&nbsp;одному имени на&nbsp;строке или через запятую. Количество имен неограниченно.</p>
+			<p>Вопросы, связанные с приемом поминовений, можно задать по&nbsp;адресу <a href="mailto:dioramaugra@mail.ru">dioramaugra@mail.ru</a></p>
+		</div></article>
+
+
+<div>
+<p>&nbsp;</p>
+<table id="posit">
+	<tbody>
+		<tr>
+			<td>
+				<p><strong>Наименование требы</strong></p>
+			</td>
+			<td>
+				<p><strong>Пожертвование</strong></p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p><strong><strong>Записка</strong></strong> (до 10 имен)</p>
+			</td>
+			<td>
+				<p>28 руб.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p><strong><strong>Обедня</strong></strong> (каждое имя)</p>
+			</td>
+			<td>
+				<p>23 руб/имя</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p><strong><strong>Молебен</strong></strong> (только о здравии, 5 имен)</p>
+			</td>
+			<td>
+				<p>50 руб.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p><strong><strong>Благодарственный молебен</strong></strong> (5 имен)</p>
+			</td>
+			<td>
+				<p>55 руб.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p><strong><strong>Панихида </strong></strong></p>
+				<p>(только об упокоении, одно имя)</p>
+			</td>
+			<td>
+				<p>55 руб/имя</p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<p><strong><strong>Сорокоуст</strong></strong></p>
+				<p>( о здравии и упокоении):</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>С выниманием частиц в алтаре</p>
+			</td>
+			<td>
+				<p>460 руб/имя</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Без вынимания частицы</p>
+			</td>
+			<td>
+				<p>270 руб/имя</p>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<p><strong><strong>Поминание о здравии и упокоении:</strong></strong></p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Один месяц</p>
+			</td>
+			<td>
+				<p>260 руб/имя</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Полгода</p>
+			</td>
+			<td>
+				<p>520 руб/имя</p>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<p>Год</p>
+			</td>
+			<td>
+				<p>1050 руб/имя</p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<p>&nbsp;</p>
+</div>
+
+   
